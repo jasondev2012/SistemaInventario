@@ -1,15 +1,27 @@
-# from app.db import get_connection
-
+from db import DataBase
+from models.seguridad.UsuarioSesionModel import UsuarioSesionModel
 class AuthService:
-    def login_usuario(usuario, contrasena):
-        # conn = get_connection()
-        # cursor = conn.cursor()
+    @staticmethod
+    def loginUsuario(usuario, p_strPassword):
+        usuarioSesion = None
+        conn = DataBase.get_connection()
+        try:
+            cursor = conn.cursor()
+            try:
+                query = "EXEC Seguridad.Usp_Login_Obtener ?"
+                cursor.execute(query, (usuario,))
+                resultado = cursor.fetchone()
+                if resultado != None:
+                    intUsuarioID, strPassword = resultado
+                    if p_strPassword == strPassword:
+                        query = "EXEC Seguridad.Usp_Usuario_Obtener ?"
+                        cursor.execute(query, (intUsuarioID,))
+                        resultado = cursor.fetchone()
+                        usuarioSesion = UsuarioSesionModel(*resultado)
 
-        # query = "SELECT COUNT(*) FROM Usuarios WHERE Username = ? AND Password = ?"
-        # cursor.execute(query, (usuario, contrasena))
-        # resultado = cursor.fetchone()
-
-        # cursor.close()
-        # conn.close()
-
-        return False # resultado[0] == 1
+            finally:
+                cursor.close()
+        finally:
+            conn.close()
+        return usuarioSesion
+    

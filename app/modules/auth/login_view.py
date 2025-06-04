@@ -55,13 +55,9 @@ class LoginView(ttk.Frame):
         ttk.Button(formulario, text="Iniciar Sesión", bootstyle=PRIMARY, command=self.iniciar_sesion)\
             .pack(pady=30)
         
-        ttk.Button(formulario, text="Registrarse", bootstyle=SECONDARY, command=self.iniciar_sesion)\
-            .pack()
-        
     def crear_panel_derecho(self):
         # Obtener dimensiones de la pantalla
         ancho_pantalla = self.master.winfo_screenwidth()
-        print(ancho_pantalla)
         alto_pantalla = self.master.winfo_screenheight()
         # === Frame Derecho (Imagen) ===
         frame_imagen = ttk.Frame(self.frame_imagen)
@@ -80,8 +76,11 @@ class LoginView(ttk.Frame):
     def iniciar_sesion(self):
         usuario = self.entry_usuario.get()
         contrasena = self.entry_contrasena.get()
-
-        if AuthService.login_usuario(usuario, contrasena):
-            self.on_login_success()
+        if usuario == '' or contrasena == '':
+            messagebox.showwarning("Validación", "Debe ingresar un usuario y contraseña")
         else:
-            messagebox.showerror("Error", "Credenciales inválidas")
+            usuarioSesion = AuthService.loginUsuario(usuario, contrasena)
+            if usuarioSesion != None:
+                self.on_login_success(usuarioSesion)
+            else:
+                messagebox.showerror("Error", "Credenciales inválidas")

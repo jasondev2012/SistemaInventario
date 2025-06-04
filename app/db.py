@@ -1,8 +1,9 @@
 import pyodbc
 
-def get_connection():
-    return pyodbc.connect(
-        'DRIVER={ODBC Driver 17 for SQL Server};'
-        'SERVER=localhost;DATABASE=InventarioDB;'
-        'UID=sa;PWD=tu_contraseña'
-    )
+class DataBase:
+    def get_connection():
+        return pyodbc.connect(
+            'DRIVER={ODBC Driver 17 for SQL Server};'
+            'SERVER=localhost\SQLEXPRESS;DATABASE=dbInventario;'
+            'UID=user;PWD=123456'
+        )

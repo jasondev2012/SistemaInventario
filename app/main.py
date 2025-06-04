@@ -1,6 +1,10 @@
+import os
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from modules.auth.login_view import LoginView
+from PIL import Image, ImageTk
+import tkinter.font as tkfont
+
 #TEMAS PARA EL TKBOOTSTRAP
 # flatly
 # cosmo
@@ -14,44 +18,82 @@ from modules.auth.login_view import LoginView
 def iniciar_app():
     app = ttk.Window(title="Sistema de Inventario", themename="superhero")
     app.state("zoomed")
-    
+
     def mostrar_login():
         for widget in app.winfo_children():
             widget.destroy()
         LoginView(app, on_login_success)
-
-    def on_login_success():
-        # Limpiar la ventana
+    def on_login_success(usuarioSesion):
+        app.usuario_sesion = usuarioSesion
         for widget in app.winfo_children():
             widget.destroy()
 
-        # Crear barra de menú
-        menubar = ttk.Menu(app)
 
-        # Menú "Archivo"
-        archivo_menu = ttk.Menu(menubar, tearoff=0)
-        archivo_menu.add_command(label="Nueva Entrada")
-        archivo_menu.add_command(label="Guardar")
-        archivo_menu.add_separator()
-        archivo_menu.add_command(label="Cerrar Sesión", command=mostrar_login)
-        menubar.add_cascade(label="Archivo", menu=archivo_menu)
-
-        # Menú "Inventario"
-        inventario_menu = ttk.Menu(menubar, tearoff=0)
-        inventario_menu.add_command(label="Ver Productos")
-        inventario_menu.add_command(label="Categorías")
-        menubar.add_cascade(label="Inventario", menu=inventario_menu)
-
-        # Menú "Ayuda"
-        ayuda_menu = ttk.Menu(menubar, tearoff=0)
-        ayuda_menu.add_command(label="Acerca de")
-        menubar.add_cascade(label="Ayuda", menu=ayuda_menu)
-
-        # Configurar el menú en la ventana
-        app.config(menu=menubar)
+        cargar_menu()
 
         # Contenido principal
-        ttk.Label(app, text="Bienvenido al sistema de inventario", font=("Helvetica", 16)).pack(pady=60)
+        ttk.Label(app, text=f'Bienvenido al sistema de inventario {app.usuario_sesion.strNombresCompletos}', font=("Helvetica", 16)).pack(pady=60)
+
+    def cargar_menu():
+        Style = ttk.Style()
+        Style.configure('TMenubutton', font=('Helvetica', 13))
+        Style.configure('custom.TButton', background='tomato', focuscolor="tomato", bordercolor="tomato", foreground='white', font=('Helvetica', 13))
+        cargar_iconos()
+        fuente_grande = tkfont.Font(family="Helvetica", size=13, weight="normal")
+        menubar_frame = ttk.Frame(app)
+        menubar_frame.pack(side="top", fill="x")
+
+        # Seguridad
+        seguridad_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Seguridad", image=app.icon_seguridad, compound="left", bootstyle="secondary")
+        seguridad_menu = ttk.Menu(seguridad_menu_btn, tearoff=0, font=fuente_grande)
+        seguridad_menu.add_command(label="Usuarios")
+        seguridad_menu.add_command(label="Roles")
+        seguridad_menu_btn["menu"] = seguridad_menu
+        seguridad_menu_btn.pack(side="left", padx=0)
+        
+        # Servicios
+        gestion_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Servicios", image=app.icon_servicios, compound="left", bootstyle="secondary")
+        gestion_menu = ttk.Menu(gestion_menu_btn, tearoff=0, font=fuente_grande)
+        gestion_menu.add_command(label="Ventas")
+        gestion_menu.add_command(label="Compras")
+        gestion_menu.add_command(label="Mermas")
+        gestion_menu.add_command(label="Kardex")
+        gestion_menu_btn["menu"] = gestion_menu
+        gestion_menu_btn.pack(side="left", padx=0)
+
+        # Gestión
+        gestion_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Gestión", image=app.icon_mantenimiento, compound="left", bootstyle="secondary")
+        gestion_menu = ttk.Menu(gestion_menu_btn, tearoff=0, font=fuente_grande)
+        gestion_menu.add_command(label="Productos")
+        gestion_menu.add_command(label="Categorías")
+        gestion_menu_btn["menu"] = gestion_menu
+        gestion_menu_btn.pack(side="left", padx=0)
+
+        # Catálogos
+        catalogos_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Catálogos", image=app.icon_catalogo, compound="left", bootstyle="secondary")
+        catalogos_menu = ttk.Menu(catalogos_menu_btn, tearoff=0, font=fuente_grande)
+        catalogos_menu.add_command(label="Unidades de Medida")
+        catalogos_menu.add_command(label="Documentos Identidad")
+        catalogos_menu.add_command(label="Tipos de Movimientos")
+        catalogos_menu_btn["menu"] = catalogos_menu
+        catalogos_menu_btn.pack(side="left", padx=0)
+
+        # Cerrar sesión (como botón simple)
+        cerrar_btn = ttk.Button(menubar_frame, cursor="hand2", text="Cerrar Sesión", image=app.icon_logout, compound="left", bootstyle="danger", command=mostrar_login)
+        cerrar_btn.pack(side="right", padx=5)
+
+    def cargar_iconos():
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        ruta_seguridad = os.path.join(BASE_DIR, "assets", "icons", "seguridad.png")
+        ruta_mantenimiento = os.path.join(BASE_DIR, "assets", "icons", "mantenimiento.png")
+        ruta_catalogo = os.path.join(BASE_DIR, "assets", "icons", "catalogo.png")
+        ruta_logout = os.path.join(BASE_DIR, "assets", "icons", "logout.png")
+        ruta_servicios = os.path.join(BASE_DIR, "assets", "icons", "servicios.png")
+        app.icon_seguridad = ImageTk.PhotoImage(Image.open(ruta_seguridad).resize((25, 25)))
+        app.icon_mantenimiento = ImageTk.PhotoImage(Image.open(ruta_mantenimiento).resize((25, 25)))
+        app.icon_catalogo = ImageTk.PhotoImage(Image.open(ruta_catalogo).resize((25, 25)))
+        app.icon_logout = ImageTk.PhotoImage(Image.open(ruta_logout).resize((25, 25)))
+        app.icon_servicios = ImageTk.PhotoImage(Image.open(ruta_servicios).resize((25, 25)))
 
     LoginView(app, on_login_success)
     app.mainloop()
