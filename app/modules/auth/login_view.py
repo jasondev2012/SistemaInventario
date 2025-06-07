@@ -1,6 +1,7 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import messagebox
+from tkinter import StringVar
 from modules.auth.auth_service import AuthService
 from PIL import Image, ImageTk
 
@@ -38,18 +39,20 @@ class LoginView(ttk.Frame):
         self.rowconfigure(0, weight=1)     # ocupa toda la altura
 
     def crear_panel_izquierdo(self):
-
+        self.usuario_var = StringVar()
+        self.password_var = StringVar()
+        self.usuario_var.set("jjgutierrezc")
+        self.password_var.set("123456")
         # Sub-frame centrado dentro del frame izquierdo
         formulario = ttk.Frame(self.frame_login)
-        ancho_pantalla = self.master.winfo_screenwidth()
         formulario.grid(row=0, column=0)
 
         ttk.Label(formulario, text="Usuario:", font=("Segoe UI", 12)).pack(pady=(10, 5), anchor="w")
-        self.entry_usuario = ttk.Entry(formulario, width=50)
+        self.entry_usuario = ttk.Entry(formulario, width=50, textvariable=self.usuario_var)
         self.entry_usuario.pack(pady=5)
 
         ttk.Label(formulario, text="Contraseña:", font=("Segoe UI", 12)).pack(pady=(15, 5), anchor="w")
-        self.entry_contrasena = ttk.Entry(formulario, show="*", width=50)
+        self.entry_contrasena = ttk.Entry(formulario, show="*", width=50, textvariable=self.password_var)
         self.entry_contrasena.pack(pady=5)
 
         ttk.Button(formulario, text="Iniciar Sesión", bootstyle=PRIMARY, command=self.iniciar_sesion)\
@@ -65,7 +68,7 @@ class LoginView(ttk.Frame):
 
         try:
             imagen = Image.open("app/assets/login_image.png")  # Ruta a tu imagen
-            imagen = imagen.resize((int(ancho_pantalla * 0.7), alto_pantalla))
+            imagen = imagen.resize((int(1366 * 0.7), 768))
             imagen_tk = ImageTk.PhotoImage(imagen)
             ttk.Label(frame_imagen, image=imagen_tk).pack()
             # Necesario mantener una referencia a la imagen

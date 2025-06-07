@@ -2,6 +2,7 @@ import os
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from modules.auth.login_view import LoginView
+from modules.seguridad.usuario.usuario_view import UsuarioView
 from PIL import Image, ImageTk
 import tkinter.font as tkfont
 
@@ -16,23 +17,42 @@ import tkinter.font as tkfont
 # vapor
 
 def iniciar_app():
+    
     app = ttk.Window(title="Sistema de Inventario", themename="superhero")
-    app.state("zoomed")
+    app.geometry("1366x768")
+    app.columnconfigure(0, weight=1)
+    app.rowconfigure(0, weight=1)
+    def mostrar_manteniemiento_usuario():
+        for widget in app.content_frame.winfo_children():
+            widget.destroy()
+        UsuarioView(app.content_frame)
 
     def mostrar_login():
         for widget in app.winfo_children():
             widget.destroy()
         LoginView(app, on_login_success)
+
     def on_login_success(usuarioSesion):
         app.usuario_sesion = usuarioSesion
+
         for widget in app.winfo_children():
             widget.destroy()
 
-
         cargar_menu()
 
-        # Contenido principal
-        ttk.Label(app, text=f'Bienvenido al sistema de inventario {app.usuario_sesion.strNombresCompletos}', font=("Helvetica", 16)).pack(pady=60)
+        style = ttk.Style()
+        style.configure("Custom4.TFrame", background="#BE791D")
+        # Crear el contenedor principal de contenido
+        app.content_frame = ttk.Frame(app, style="Custom4.TFrame", width=1366)
+        app.content_frame.pack(fill="both", expand=True)
+
+        # Contenido de bienvenida dentro del content_frame
+        ttk.Label(
+            app.content_frame,
+            text=f'Bienvenido al sistema de inventario {app.usuario_sesion.strNombresCompletos}',
+            font=("Helvetica", 16)
+
+        ).pack(pady=60)
 
     def cargar_menu():
         Style = ttk.Style()
@@ -46,7 +66,7 @@ def iniciar_app():
         # Seguridad
         seguridad_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Seguridad", image=app.icon_seguridad, compound="left", bootstyle="secondary")
         seguridad_menu = ttk.Menu(seguridad_menu_btn, tearoff=0, font=fuente_grande)
-        seguridad_menu.add_command(label="Usuarios")
+        seguridad_menu.add_command(label="Usuarios", command=mostrar_manteniemiento_usuario)
         seguridad_menu.add_command(label="Roles")
         seguridad_menu_btn["menu"] = seguridad_menu
         seguridad_menu_btn.pack(side="left", padx=0)
