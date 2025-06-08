@@ -1,13 +1,13 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.tableview import Tableview
 from ttkbootstrap.constants import *
-from tkinter import messagebox, StringVar, filedialog
-from modules.auth.auth_service import AuthService
-from PIL import Image, ImageTk
+from services.seguridad.usuario_service import UsuarioService
+from modules.seguridad.usuario.usuario_registro_view import UsuarioRegistroView
 
 class UsuarioView(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
+        self.usuario_sesion = master.usuario_sesion
         self.foto_imgtk = None
         self.pack(fill="both", expand=True)  # Asegúrate de empacar el frame principal
 
@@ -27,29 +27,23 @@ class UsuarioView(ttk.Frame):
         ).pack(pady=20)
 
         # Define columnas
-        columns = [
-            {"text": "ID", "stretch": False},
-            {"text": "Nombre"},
-            {"text": "Rol"},
-            {"text": "Activo", "anchor": "center"},
-        ]
 
         # Datos de ejemplo
-        usuarios = [
-            [1, "Jason Joseph Gutierrez Cuadros", "Admin", True],
-            [2, "Ana", "Usuario", True],
-            [3, "Luis", "Invitado", False]
-        ]
+        self.usuarios = UsuarioService.listar()
 
         # LEFT FRAME
         left_frame = ttk.Frame(self, style="Custom1.TFrame")
-        left_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+        left_frame.grid(row=1, rowspan=4, column=0, padx=10, pady=10, sticky="nsew")
         
+        self.cols = self.obtener_columnas()
         # Crear tabla
         self.table = Tableview(
             left_frame,
-            coldata=columns,
-            rowdata=usuarios,
+            coldata=self.cols,
+            rowdata=[
+                [u.intUsuarioID, u.strUsuario, u.strNombresCompletos, u.strRol, u.strTipoDocumento, u.strNumeroDocumento, u.strEstado]
+                for u in self.usuarios
+            ],
             paginated=True,
             searchable=True,
             bootstyle="info",
@@ -57,145 +51,92 @@ class UsuarioView(ttk.Frame):
             autoalign=False,
             yscrollbar=True,
             autofit=True
-        ).pack(fill=BOTH, expand=True)
-        
-        notebook = ttk.Notebook(self, bootstyle="primary")
-        notebook.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
-        # notebook.pack(fill="both", expand=True, padx=10, pady=10)
+        )
+        self.table.pack(fill=BOTH, expand=True)
+        self.table.view.bind("<<TreeviewSelect>>", self.on_row_selected)
 
-        notebook.columnconfigure(1, weight=1)
-        right_frame = ttk.Frame(notebook, padding=(5, 20))
+
+        right_frame = ttk.Frame(self, padding=(5, 50))
         right_frame.columnconfigure(0, weight=1)
-        right_frame.columnconfigure(1, weight=1)
-
+        right_frame.grid(row=1, rowspan=4, column=1, sticky="nw")
+        # right_frame.columnconfigure(1, weight=1)
+        ttk.Button(
+            right_frame,
+            text="Nuevo",
+            bootstyle="success",
+            width=20,
+            command=lambda: self.abrir_registro_usuario(0)
+        ).grid(row=0, column=0, pady=2)
+        ttk.Button(
+            right_frame,
+            text="Editar",
+            bootstyle="info",
+            width=20,
+            command=lambda: self.abrir_registro_usuario(self.intUsuarioID)
+        ).grid(row=1, column=0, pady=2)
+        # ttk.Button(
+        #     right_frame,
+        #     text="Eliminar",
+        #     bootstyle="danger",
+        #     width=20
+        # ).grid(row=2, column=0, pady=2)
         
-        self.tipo_usuario_var = StringVar()
-        self.nombres_var = StringVar()
-        self.apellido_paterno_var = StringVar()
-        self.apellido_materno_var = StringVar()
-        self.tipo_documento_var = StringVar()
-        self.numero_documento_var = StringVar()
-        self.usuario_var = StringVar()
-        self.password_var = StringVar()
-        self.activo_var = ttk.BooleanVar(value=True) 
-        self.rol_opciones = {
-            "Administrador": 1,
-            "Vendedor": 2,
-            "Proveedor": 3
-        }
-        self.tipo_documento_opciones = {
-            "DNI": 1,
-            "Carnet de Extranjería": 2,
-            "Pasaporte": 3
-        }
-        notebook.add(right_frame, text="Datos del Usuario")
-
-        self.foto_label = ttk.Label(right_frame)
-        self.foto_label.grid(rowspan=3, columnspan=2, padx=10, pady=10)
-
-        ttk.Button(
-            right_frame,
-            text="Cargar Foto",
-            command=self.cargar_foto,
-            bootstyle="primary-outline"
-        ).grid(row=4, columnspan=2, padx=5, pady=3)
-
-        ttk.Label(
-            right_frame,
-            text='Rol: ',
-            font=("Helvetica", 11),
-        ).grid(row=5, column=0, sticky="nsew")
-        ttk.Combobox(
-            right_frame,
-            textvariable=self.tipo_usuario_var,
-            values=list(self.rol_opciones.keys()),
-            font=("Helvetica", 11),
-            state="readonly",
-            bootstyle="primary"
-        ).grid(row=6, column=0, pady=3, padx=1, sticky="ew")
-
-        ttk.Label(
-            right_frame,
-            text='Nombres: ',
-            font=("Helvetica", 11),
-        ).grid(row=5, column=1, sticky="nsew")
-        ttk.Entry(right_frame, textvariable=self.nombres_var).grid(row=6, column=1, pady=3, padx=1, sticky="ew")
-
-        ttk.Label(
-            right_frame,
-            text='Apellido Paterno',
-            font=("Helvetica", 11)
-        ).grid(row=7, column=0, sticky="nsew")
-        ttk.Entry(right_frame, textvariable=self.apellido_paterno_var).grid(row=8, column=0, pady=3, padx=1, sticky="ew")
-
-        ttk.Label(
-            right_frame,
-            text='Apellido Materno',
-            font=("Helvetica", 11),
-        ).grid(row=7, column=1, sticky="nsew")
-        ttk.Entry(right_frame, textvariable=self.apellido_materno_var).grid(row=8, column=1, pady=3, padx=1, sticky="ew")
-
-        ttk.Label(
-            right_frame,
-            text='Tipo Documento',
-            font=("Helvetica", 11)
-        ).grid(row=9, column=0, sticky="nsew")
-        ttk.Combobox(
-            right_frame,
-            textvariable=self.tipo_documento_var,
-            values=list(self.tipo_documento_opciones.keys()),
-            font=("Helvetica", 11),
-            state="readonly",
-            bootstyle="primary"
-        ).grid(row=10, column=0, pady=3, padx=1, sticky="ew")
-
-        ttk.Label(
-            right_frame,
-            text='Número Documento',
-            font=("Helvetica", 11),
-        ).grid(row=9, column=1, sticky="nsew")
-        ttk.Entry(right_frame, textvariable=self.numero_documento_var).grid(row=10, column=1, pady=3, padx=1, sticky="ew")
-
-        ttk.Label(
-            right_frame,
-            text='Usuario',
-            font=("Helvetica", 11),
-        ).grid(row=11, column=0, sticky="nsew")
-        ttk.Entry(right_frame, textvariable=self.usuario_var).grid(row=12, column=0, pady=3, padx=1, sticky="ew")
-
-        ttk.Label(
-            right_frame,
-            text='Contraseña',
-            font=("Helvetica", 11),
-        ).grid(row=11, column=1, sticky="nsew")
-        ttk.Entry(right_frame, show='*', textvariable=self.password_var).grid(row=12, column=1, pady=3, padx=1, sticky="ew")
-
-        ttk.Checkbutton(
-            right_frame,
-            text="¿Está activo?",
-            variable=self.activo_var,
-            bootstyle="success" 
-        ).grid(row=13, column=0, sticky="w", pady=5)
-
-        ttk.Button(
-            right_frame,
-            text="Guardar Cambios",
-            bootstyle="success"
-        ).grid(row=14, columnspan=2, padx=5, pady=20)
         # Configurar filas y columnas para expandirse
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=11)
-        self.columnconfigure(0, weight=7)
+        self.columnconfigure(0, weight=6)
         self.columnconfigure(1, weight=5)
 
-    def cargar_foto(self):
-        ruta = filedialog.askopenfilename(
-            filetypes=[("Imagenes", "*.jpg *.jpeg *.png *.bmp *.gif")]
-        )
-        if ruta:
-            imagen = Image.open(ruta)
-            imagen = imagen.resize((100, 100))  # ajusta el tamaño deseado
-            self.foto_imgtk = ImageTk.PhotoImage(imagen)
+    def on_row_selected(self, event):
+        selected = self.table.view.focus()
+        values = self.table.view.item(selected, "values")
+        if values:
+            self.intUsuarioID = int(values[0])
 
-            if self.foto_label:
-                self.foto_label.configure(image=self.foto_imgtk)
+    def abrir_registro_usuario(self, intUsuarioID):
+
+        # Crear el diálogo
+        self.dialog = ttk.Toplevel(self)
+        self.dialog.usuario_sesion = self.usuario_sesion
+        self.dialog.title("Editar Usuario" if intUsuarioID > 0 else "Nuevo Usuario")
+        self.dialog.transient(self.winfo_toplevel())  # asociar con ventana principal
+        self.dialog.grab_set()  # hace que sea modal
+
+        # Establecer tamaño fijo (por ejemplo: 600x400)
+        ancho = 600
+        alto = 550
+
+        # Calcular posición centrada
+        screen_width = self.dialog.winfo_screenwidth()
+        screen_height = self.dialog.winfo_screenheight()
+
+        x = (screen_width // 2) - (ancho // 2)
+        y = (screen_height // 2) - (alto // 2)
+
+        self.dialog.geometry(f"{ancho}x{alto}+{x}+{y}")
+        self.dialog.resizable(False, False)  # evita redimensionamiento
+
+        # Cargar la vista de registro dentro del diálogo
+        UsuarioRegistroView(self.dialog, intUsuarioID, self.on_register_success).pack(fill="both", expand=True)
+    def obtener_columnas(self):
+        return [
+            {"text": "ID", "stretch": False},
+            {"text": "Usuario"},
+            {"text": "Nombres"},
+            {"text": "Rol"},
+            {"text": "Tipo Documento"},
+            {"text": "Numero de Documento"},
+            {"text": "Estado", "anchor": "center"},
+        ]
+    def on_register_success(self):
+        self.usuarios = UsuarioService.listar()
+        
+        if hasattr(self, 'table'):
+            nueva_data = [
+                [u.intUsuarioID, u.strUsuario, u.strNombresCompletos, u.strRol, u.strTipoDocumento, u.strNumeroDocumento, u.strEstado]
+                for u in self.usuarios
+            ]
+            self.table.build_table_data(self.cols, nueva_data)
+            self.table.load_table_data(True)
+        if hasattr(self, 'dialog'):
+            self.dialog.destroy()

@@ -19,12 +19,23 @@ import tkinter.font as tkfont
 def iniciar_app():
     
     app = ttk.Window(title="Sistema de Inventario", themename="superhero")
-    app.geometry("1366x768")
+    ancho = 1366
+    alto = 768
     app.columnconfigure(0, weight=1)
     app.rowconfigure(0, weight=1)
+    
+    screen_width = app.winfo_screenwidth()
+    screen_height = app.winfo_screenheight()
+    
+    x = (screen_width // 2) - (ancho // 2)
+    y = (screen_height // 2) - (alto // 2)
+    app.geometry("1366x768")
+    app.geometry(f"{ancho}x{alto}+{x}+{y}")
+    app.resizable(False, False)  # evita redimensionamiento
     def mostrar_manteniemiento_usuario():
         for widget in app.content_frame.winfo_children():
             widget.destroy()
+        app.content_frame.usuario_sesion = app.usuario_sesion
         UsuarioView(app.content_frame)
 
     def mostrar_login():

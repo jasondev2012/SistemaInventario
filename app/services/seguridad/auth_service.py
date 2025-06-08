@@ -1,5 +1,5 @@
 from db import DataBase
-from models.seguridad.UsuarioSesionModel import UsuarioSesionModel
+from models.seguridad.usuario_sesion_model import UsuarioSesionModel
 class AuthService:
     @staticmethod
     def loginUsuario(strUsuario, strPassword):
