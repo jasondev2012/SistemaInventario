@@ -3,7 +3,7 @@ from ttkbootstrap.constants import *
 from tkinter import StringVar, filedialog, messagebox
 from PIL import Image, ImageTk
 from controllers.seguridad.usuario_service import UsuarioService
-from models.seguridad.usuario_registro_model import UsuarioRegistroModel
+from controllers.seguridad.rol_service import RolService
 
 class UsuarioRegistroView(ttk.Frame):
     def __init__(self, master, intUsuarioID, on_register_success):
@@ -25,11 +25,8 @@ class UsuarioRegistroView(ttk.Frame):
         self.activo_var = ttk.BooleanVar(value=True)
 
         # Diccionarios de opciones
-        self.rol_opciones = {
-            "Administrador": 1,
-            "Vendedor": 2,
-            "Proveedor": 3
-        }
+        roles = RolService.listar_combo()
+        self.rol_opciones = {rol.strNombre: rol.intRolID for rol in roles}
         self.tipo_documento_opciones = {
             "DNI": 1,
             "Carnet de Extranjería": 2,
@@ -39,7 +36,6 @@ class UsuarioRegistroView(ttk.Frame):
         if intUsuarioID > 0:
             usuario = UsuarioService.obtener(intUsuarioID)
         if usuario is not None:
-            print("aaaaa")
             self.rol_var.set(next((k for k, v in self.rol_opciones.items() if v == usuario.intRolID), None))
             self.nombres_var.set(usuario.strNombres)
             self.apellido_paterno_var.set(usuario.strApellidoPaterno)

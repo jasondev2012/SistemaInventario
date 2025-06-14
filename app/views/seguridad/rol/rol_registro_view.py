@@ -5,7 +5,6 @@ from controllers.seguridad.rol_service import RolService
 
 class RolRegistroView(ttk.Frame):
     def __init__(self, master, intRolID, on_register_success):
-        print(intRolID)
         super().__init__(master)
         self.usuario_sesion = master.usuario_sesion
         self.on_register_success = on_register_success

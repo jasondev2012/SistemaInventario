@@ -1,9 +1,27 @@
 from db import DataBase
+from models.seguridad.rol_lista_combo_model import RolListaComboModel
 from models.seguridad.rol_lista_model import RolListaModel
 from models.seguridad.rol_registro_model import RolRegistroModel
 from models.reponse_model import ResponseModel
 
 class RolService:
+    @staticmethod
+    def listar_combo():
+        conn = DataBase.get_connection()
+        listado = []
+        try:
+            cursor = conn.cursor()
+            try:
+                query = "EXEC Seguridad.Usp_Rol_ListarCombo"
+                cursor.execute(query)
+                resultado = cursor.fetchall()
+                if resultado is not None:
+                    listado = [RolListaComboModel(*fila) for fila in resultado]
+            finally:
+                cursor.close()
+        finally:
+            conn.close()
+        return listado
     @staticmethod
     def listar():
         conn = DataBase.get_connection()
@@ -63,10 +81,6 @@ class RolService:
         bitActivo,
         intUsuarioSesion
     ):
-        print(intRolID)
-        print(strNombre)
-        print(bitActivo)
-        print(intUsuarioSesion)
         conn = DataBase.get_connection()
         respuesta = None
         try:
