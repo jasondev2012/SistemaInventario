@@ -3,6 +3,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from views.auth.login_view import LoginView
 from views.seguridad.usuario.usuario_view import UsuarioView
+from views.seguridad.rol.rol_view import RolView
 from PIL import Image, ImageTk
 import tkinter.font as tkfont
 
@@ -37,6 +38,12 @@ def iniciar_app():
             widget.destroy()
         app.content_frame.usuario_sesion = app.usuario_sesion
         UsuarioView(app.content_frame)
+
+    def mostrar_manteniemiento_rol():
+        for widget in app.content_frame.winfo_children():
+            widget.destroy()
+        app.content_frame.usuario_sesion = app.usuario_sesion
+        RolView(app.content_frame)
 
     def mostrar_login():
         for widget in app.winfo_children():
@@ -78,7 +85,7 @@ def iniciar_app():
         seguridad_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Seguridad", image=app.icon_seguridad, compound="left", bootstyle="secondary")
         seguridad_menu = ttk.Menu(seguridad_menu_btn, tearoff=0, font=fuente_grande)
         seguridad_menu.add_command(label="Usuarios", command=mostrar_manteniemiento_usuario)
-        seguridad_menu.add_command(label="Roles")
+        seguridad_menu.add_command(label="Roles", command=mostrar_manteniemiento_rol)    
         seguridad_menu_btn["menu"] = seguridad_menu
         seguridad_menu_btn.pack(side="left", padx=0)
         

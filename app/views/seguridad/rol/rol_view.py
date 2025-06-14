@@ -2,15 +2,14 @@ import ttkbootstrap as ttk
 from ttkbootstrap.tableview import Tableview
 from tkinter import messagebox
 from ttkbootstrap.constants import *
-from controllers.seguridad.usuario_service import UsuarioService
-from views.seguridad.usuario.usuario_registro_view import UsuarioRegistroView
+from controllers.seguridad.rol_service import RolService
+from views.seguridad.rol.rol_registro_view import RolRegistroView
 
-class UsuarioView(ttk.Frame):
+class RolView(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.usuario_sesion = master.usuario_sesion
-        self.foto_imgtk = None
-        self.pack(fill="both", expand=True)  # Asegúrate de empacar el frame principal
+        self.pack(fill="both", expand=True)
 
         style = ttk.Style()
         style.configure("Custom.TFrame", background="#3838F0")
@@ -23,14 +22,14 @@ class UsuarioView(ttk.Frame):
 
         ttk.Label(
             top_frame,
-            text='Mantenimiento de Usuarios',
+            text='Mantenimiento de Roles',
             font=("Helvetica", 16)
         ).pack(pady=20)
 
         # Define columnas
 
         # Datos de ejemplo
-        self.usuarios = UsuarioService.listar()
+        self.roles = RolService.listar()
 
         # LEFT FRAME
         left_frame = ttk.Frame(self, style="Custom1.TFrame")
@@ -42,8 +41,8 @@ class UsuarioView(ttk.Frame):
             left_frame,
             coldata=self.cols,
             rowdata=[
-                [u.intUsuarioID, u.strUsuario, u.strNombresCompletos, u.strRol, u.strTipoDocumento, u.strNumeroDocumento, u.strEstado]
-                for u in self.usuarios
+                [r.intRolID, r.strNombre, r.strEstado]
+                for r in self.roles
             ],
             paginated=True,
             searchable=True,
@@ -66,21 +65,21 @@ class UsuarioView(ttk.Frame):
             text="Nuevo",
             bootstyle="success",
             width=20,
-            command=lambda: self.abrir_registro_usuario(0)
+            command=lambda: self.abrir_registro_rol(0)
         ).grid(row=0, column=0, pady=2)
         ttk.Button(
             right_frame,
             text="Editar",
             bootstyle="info",
             width=20,
-            command=lambda: self.abrir_registro_usuario(self.intUsuarioID)
+            command=lambda: self.abrir_registro_rol(self.intRolID)
         ).grid(row=1, column=0, pady=2)
         ttk.Button(
             right_frame,
             text="Eliminar",
             bootstyle="danger",
             width=20,
-            command=lambda: self.dar_de_baja(self.intUsuarioID)
+            command=lambda: self.dar_de_baja(self.intRolID)
         ).grid(row=2, column=0, pady=2)
         
         # Configurar filas y columnas para expandirse
@@ -93,26 +92,29 @@ class UsuarioView(ttk.Frame):
         selected = self.table.view.focus()
         values = self.table.view.item(selected, "values")
         if values:
-            self.intUsuarioID = int(values[0])
+            self.intRolID = int(values[0])
 
-    def dar_de_baja(self, intUsuarioID):
-        respuesta = messagebox.askyesno("Confirmación", "¿Está seguro que desea dar de baja al usuario?")
+    def dar_de_baja(self, intRolID):
+        respuesta = messagebox.askyesno("Confirmación", "¿Está seguro que desea dar de baja al rol?")
         if respuesta:
-            UsuarioService.dar_de_baja(intUsuarioID, self.usuario_sesion.intUsuarioID) 
-            self.on_register_success()    
+            respuesta = RolService.dar_de_baja(intRolID, self.usuario_sesion.intUsuarioID) 
+            if respuesta.bitError:
+                messagebox.showwarning("Validación!", respuesta.strMensaje)
+            else:
+                self.on_register_success()    
 
-    def abrir_registro_usuario(self, intUsuarioID):
+    def abrir_registro_rol(self, intRolID):
 
         # Crear el diálogo
         self.dialog = ttk.Toplevel(self)
         self.dialog.usuario_sesion = self.usuario_sesion
-        self.dialog.title("Editar Usuario" if intUsuarioID > 0 else "Nuevo Usuario")
+        self.dialog.title("Editar Rol" if intRolID > 0 else "Nuevo Rol")
         self.dialog.transient(self.winfo_toplevel())  # asociar con ventana principal
         self.dialog.grab_set()  # hace que sea modal
 
         # Establecer tamaño fijo (por ejemplo: 600x400)
         ancho = 600
-        alto = 550
+        alto = 250
 
         # Calcular posición centrada
         screen_width = self.dialog.winfo_screenwidth()
@@ -125,24 +127,20 @@ class UsuarioView(ttk.Frame):
         self.dialog.resizable(False, False)  # evita redimensionamiento
 
         # Cargar la vista de registro dentro del diálogo
-        UsuarioRegistroView(self.dialog, intUsuarioID, self.on_register_success).pack(fill="both", expand=True)
+        RolRegistroView(self.dialog, intRolID, self.on_register_success).pack(fill="both", expand=True)
     def obtener_columnas(self):
         return [
             {"text": "ID", "stretch": False},
-            {"text": "Usuario"},
-            {"text": "Nombres"},
-            {"text": "Rol"},
-            {"text": "Tipo Documento"},
-            {"text": "Numero de Documento"},
+            {"text": "Nombre"},
             {"text": "Estado", "anchor": "center"},
         ]
     def on_register_success(self):
-        self.usuarios = UsuarioService.listar()
+        self.roles = RolService.listar()
         
         if hasattr(self, 'table'):
             nueva_data = [
-                [u.intUsuarioID, u.strUsuario, u.strNombresCompletos, u.strRol, u.strTipoDocumento, u.strNumeroDocumento, u.strEstado]
-                for u in self.usuarios
+                [r.intRolID, r.strNombre, r.strEstado]
+                for r in self.roles
             ]
             self.table.build_table_data(self.cols, nueva_data)
             self.table.load_table_data(True)

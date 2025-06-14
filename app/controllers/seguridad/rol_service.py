@@ -1,9 +1,9 @@
 from db import DataBase
-from models.seguridad.usuario_lista_model import UsuarioListaModel
-from models.seguridad.usuario_registro_model import UsuarioRegistroModel
+from models.seguridad.rol_lista_model import RolListaModel
+from models.seguridad.rol_registro_model import RolRegistroModel
 from models.reponse_model import ResponseModel
 
-class UsuarioService:
+class RolService:
     @staticmethod
     def listar():
         conn = DataBase.get_connection()
@@ -11,86 +11,80 @@ class UsuarioService:
         try:
             cursor = conn.cursor()
             try:
-                query = "EXEC Seguridad.Usp_Usuario_Listar"
+                query = "EXEC Seguridad.Usp_Rol_Listar"
                 cursor.execute(query)
                 resultado = cursor.fetchall()
                 if resultado is not None:
-                    listado = [UsuarioListaModel(*fila) for fila in resultado]
+                    listado = [RolListaModel(*fila) for fila in resultado]
             finally:
                 cursor.close()
         finally:
             conn.close()
         return listado
     @staticmethod
-    def obtener(intUsuarioID):
+    def obtener(intRolID):
         conn = DataBase.get_connection()
         usuario = None
         try:
             cursor = conn.cursor()
             try:
-                query = "EXEC Seguridad.Usp_Usuario_Obtener ?"
-                cursor.execute(query, (intUsuarioID,))
+                query = "EXEC Seguridad.Usp_Rol_Obtener ?"
+                cursor.execute(query, (intRolID,))
                 resultado = cursor.fetchone()
                 if resultado is not None:
-                    usuario = UsuarioRegistroModel(*resultado)
+                    usuario = RolRegistroModel(*resultado)
             finally:
                 cursor.close()
         finally:
             conn.close()
         return usuario
     @staticmethod
-    def dar_de_baja(intUsuarioID,intUsuarioSesion):
+    def dar_de_baja(intRolID,intUsuarioSesion):
         conn = DataBase.get_connection()
+        respuesta = None
         try:
             cursor = conn.cursor()
             try:
-                query = "EXEC Seguridad.Usp_Usuario_Eliminar ?, ?"
-                cursor.execute(query, (intUsuarioID, intUsuarioSesion,))
+                query = "EXEC Seguridad.Usp_Rol_Eliminar ?, ?"
+                cursor.execute(query, (intRolID, intUsuarioSesion,))
+                resultado = cursor.fetchone()
                 conn.commit()
+                if resultado is not None:
+                    respuesta = ResponseModel(*resultado)
             finally:
                 cursor.close()
         finally:
             conn.close()
-        return True
+        return respuesta
     @staticmethod
     def registrar(
-        intUsuarioID,
         intRolID,
-        strUsuario,
-        strPassword,
-        strNombres,
-        strApellidoPaterno,
-        strApellidoMaterno,
-        intDocumentoIdentidadID,
-        strNumeroDocumento,
+        strNombre,
         bitActivo,
         intUsuarioSesion
     ):
+        print(intRolID)
+        print(strNombre)
+        print(bitActivo)
+        print(intUsuarioSesion)
         conn = DataBase.get_connection()
-        usuario = None
+        respuesta = None
         try:
             cursor = conn.cursor()
             try:
-                query = "EXEC Seguridad.Usp_Usuario_Registrar ?,?,?,?,?,?,?,?,?,?,?"
+                query = "EXEC Seguridad.Usp_Rol_Registrar ?,?,?,?"
                 cursor.execute(query, (
-                    int(intUsuarioID),
                     int(intRolID),
-                    strUsuario,
-                    strPassword,
-                    strNombres,
-                    strApellidoPaterno,
-                    strApellidoMaterno,
-                    int(intDocumentoIdentidadID),
-                    strNumeroDocumento,
+                    strNombre,
                     bool(bitActivo),
                     int(intUsuarioSesion)
                 ))
                 resultado = cursor.fetchone()
                 conn.commit()
                 if resultado is not None:
-                    usuario = ResponseModel(*resultado)
+                    respuesta = ResponseModel(*resultado)
             finally:
                 cursor.close()
         finally:
             conn.close()
-        return usuario
+        return respuesta
