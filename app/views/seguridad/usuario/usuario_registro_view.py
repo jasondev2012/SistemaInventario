@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import StringVar, filedialog, messagebox
 from PIL import Image, ImageTk
-from services.seguridad.usuario_service import UsuarioService
+from controllers.seguridad.usuario_service import UsuarioService
 from models.seguridad.usuario_registro_model import UsuarioRegistroModel
 
 class UsuarioRegistroView(ttk.Frame):

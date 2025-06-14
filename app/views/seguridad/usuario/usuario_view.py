@@ -1,8 +1,8 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.tableview import Tableview
 from ttkbootstrap.constants import *
-from services.seguridad.usuario_service import UsuarioService
-from modules.seguridad.usuario.usuario_registro_view import UsuarioRegistroView
+from controllers.seguridad.usuario_service import UsuarioService
+from views.seguridad.usuario.usuario_registro_view import UsuarioRegistroView
 
 class UsuarioView(ttk.Frame):
     def __init__(self, master):

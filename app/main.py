@@ -1,8 +1,8 @@
 import os
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from modules.auth.login_view import LoginView
-from modules.seguridad.usuario.usuario_view import UsuarioView
+from views.auth.login_view import LoginView
+from views.seguridad.usuario.usuario_view import UsuarioView
 from PIL import Image, ImageTk
 import tkinter.font as tkfont
 

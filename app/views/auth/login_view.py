@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import messagebox
 from tkinter import StringVar
-from services.seguridad.auth_service import AuthService
+from controllers.seguridad.auth_service import AuthService
 from PIL import Image, ImageTk
 
 class LoginView(ttk.Frame):
