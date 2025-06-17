@@ -1,11 +1,14 @@
 import os
+import json
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from views.auth.login_view import LoginView
 from views.seguridad.usuario.usuario_view import UsuarioView
 from views.seguridad.rol.rol_view import RolView
+from views.movimientos.movimiento_view import MovimientoView
 from PIL import Image, ImageTk
 import tkinter.font as tkfont
+from tkinter import messagebox
 
 #TEMAS PARA EL TKBOOTSTRAP
 # flatly
@@ -45,6 +48,12 @@ def iniciar_app():
         app.content_frame.usuario_sesion = app.usuario_sesion
         RolView(app.content_frame)
 
+    def mostrar_movimientos():
+        for widget in app.content_frame.winfo_children():
+            widget.destroy()
+        app.content_frame.usuario_sesion = app.usuario_sesion
+        MovimientoView(app.content_frame)
+
     def mostrar_login():
         for widget in app.winfo_children():
             widget.destroy()
@@ -59,9 +68,8 @@ def iniciar_app():
         cargar_menu()
 
         style = ttk.Style()
-        style.configure("Custom4.TFrame", background="#BE791D")
         # Crear el contenedor principal de contenido
-        app.content_frame = ttk.Frame(app, style="Custom4.TFrame", width=1366)
+        app.content_frame = ttk.Frame(app, width=1366)
         app.content_frame.pack(fill="both", expand=True)
 
         # Contenido de bienvenida dentro del content_frame
@@ -90,14 +98,12 @@ def iniciar_app():
         seguridad_menu_btn.pack(side="left", padx=0)
         
         # Servicios
-        gestion_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Servicios", image=app.icon_servicios, compound="left", bootstyle="secondary")
-        gestion_menu = ttk.Menu(gestion_menu_btn, tearoff=0, font=fuente_grande)
-        gestion_menu.add_command(label="Ventas")
-        gestion_menu.add_command(label="Compras")
-        gestion_menu.add_command(label="Mermas")
-        gestion_menu.add_command(label="Kardex")
-        gestion_menu_btn["menu"] = gestion_menu
-        gestion_menu_btn.pack(side="left", padx=0)
+        servicio_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Servicios", image=app.icon_servicios, compound="left", bootstyle="secondary")
+        servicio_menu = ttk.Menu(servicio_menu_btn, tearoff=0, font=fuente_grande)
+        servicio_menu.add_command(label="Movimientos", command=mostrar_movimientos)
+        servicio_menu.add_command(label="Reportes")
+        servicio_menu_btn["menu"] = servicio_menu
+        servicio_menu_btn.pack(side="left", padx=0)
 
         # Gestión
         gestion_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Gestión", image=app.icon_mantenimiento, compound="left", bootstyle="secondary")
@@ -132,6 +138,8 @@ def iniciar_app():
         app.icon_catalogo = ImageTk.PhotoImage(Image.open(ruta_catalogo).resize((25, 25)))
         app.icon_logout = ImageTk.PhotoImage(Image.open(ruta_logout).resize((25, 25)))
         app.icon_servicios = ImageTk.PhotoImage(Image.open(ruta_servicios).resize((25, 25)))
+        
+        
 
     LoginView(app, on_login_success)
     app.mainloop()
