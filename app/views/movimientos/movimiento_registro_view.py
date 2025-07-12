@@ -44,7 +44,7 @@ class MovimientoRegistroView(ttk.Frame):
         ttk.Combobox(
             right_frame,
             textvariable=self.tipo_movimiento_var,
-            values=list(self.producto_opciones.keys()),
+            values=list(self.tipo_movimiento.keys()),
             font=("Helvetica", 11),
             state="readonly",
             bootstyle="primary",
@@ -56,15 +56,15 @@ class MovimientoRegistroView(ttk.Frame):
         ttk.Combobox(
             right_frame,
             textvariable=self.producto_var,
-            values=list(self.tipo_movimiento.keys()),
+            values=list(self.producto_opciones.keys()),
             font=("Helvetica", 11),
             state="readonly",
             bootstyle="primary",
             width=32
-        ).grid(row=1, column=3, pady=3, padx=1, sticky="w")
+        ).grid(row=3, column=0, pady=3, padx=1, sticky="w")
 
-        ttk.Label(right_frame, text='Cantidad', font=("Helvetica", 11)).grid(row=4, column=1, sticky="nsew")
-        ttk.Entry(right_frame, textvariable=self.numero_documento_var, width=45).grid(row=5, column=1, pady=3, padx=1, sticky="w")
+        ttk.Label(right_frame, text='Cantidad', font=("Helvetica", 11)).grid(row=4, column=0, sticky="nsew")
+        ttk.Entry(right_frame, textvariable=self.cantidad_var, width=45).grid(row=5, column=0, pady=3, padx=1, sticky="w")
 
         # Checkbox de activo
         ttk.Checkbutton(
@@ -86,12 +86,16 @@ class MovimientoRegistroView(ttk.Frame):
         self.columnconfigure(0, weight=1)
         
     def guardar_cambios(self, intMovimientoID):
+        intTipoMovimientoID = next((v for k, v in self.tipo_movimiento.items() if k == self.tipo_movimiento_var.get()), None)
+        intProductoID = next((v for k, v in self.producto_opciones.items() if k == self.producto_var.get()), None)
+        
         response = MovimientoService.registrar(
                         int(intMovimientoID),
-                        int(self.tipo_movimiento_var.get()),
-                        int(self.producto_var.get()),
+                        int(intTipoMovimientoID) if intTipoMovimientoID is not None else 0,
+                        int(intProductoID) if intProductoID is not None else 0,
                         float(self.cantidad_var.get()),
-                        bool(self.activo_var.get())
+                        bool(self.activo_var.get(),
+                        int(self.usuario_sesion.intUsuarioID))
                     )
         if response.bitError:
             messagebox.showwarning("Validación", response.strMensaje)
