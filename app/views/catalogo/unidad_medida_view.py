@@ -2,10 +2,10 @@ import ttkbootstrap as ttk
 from ttkbootstrap.tableview import Tableview
 from tkinter import messagebox
 from ttkbootstrap.constants import *
-from views.catalogo.documento_identidad_registro_view import DocumentoIdentidadRegistroView
-from controllers.catalogo.documento_identidad_service import DocumentoIdentidadService
+from controllers.catalogo.unidad_medida_service import UnidadMedidaService
+from views.catalogo.unidad_medida_registro_view import UnidadMedidaRegistroView
 
-class DocumentoIdentidadView(ttk.Frame):
+class UnidadMedidaView(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.usuario_sesion = master.usuario_sesion
@@ -22,14 +22,14 @@ class DocumentoIdentidadView(ttk.Frame):
 
         ttk.Label(
             top_frame,
-            text='Mantenimiento de Documentos de Identidad',
+            text='Mantenimiento de Unidades de Medida',
             font=("Helvetica", 16)
         ).pack(pady=20)
 
         # Define columnas
 
         # Datos de ejemplo
-        self.roles = DocumentoIdentidadService.listar()
+        self.unidades = UnidadMedidaService.listar()
 
         # LEFT FRAME
         left_frame = ttk.Frame(self, style="Custom1.TFrame")
@@ -41,8 +41,8 @@ class DocumentoIdentidadView(ttk.Frame):
             left_frame,
             coldata=self.cols,
             rowdata=[
-                [r.intDocumentoIdentidadID, r.strNombre, r.strEstado]
-                for r in self.roles
+                [r.intUnidadMedidaID, r.strNombre, r.strAbreviatura, r.strEstado]
+                for r in self.unidades
             ],
             paginated=True,
             searchable=True,
@@ -65,21 +65,21 @@ class DocumentoIdentidadView(ttk.Frame):
             text="Nuevo",
             bootstyle="success",
             width=20,
-            command=lambda: self.abrir_registro_documento_identidad(0)
+            command=lambda: self.abrir_registro_unidad_medida(0)
         ).grid(row=0, column=0, pady=2)
         ttk.Button(
             right_frame,
             text="Editar",
             bootstyle="info",
             width=20,
-            command=lambda: self.abrir_registro_documento_identidad(self.intDocumentoIdentidadID)
+            command=lambda: self.abrir_registro_unidad_medida(self.intUnidadMedidaID)
         ).grid(row=1, column=0, pady=2)
         ttk.Button(
             right_frame,
             text="Eliminar",
             bootstyle="danger",
             width=20,
-            command=lambda: self.dar_de_baja(self.intDocumentoIdentidadID)
+            command=lambda: self.dar_de_baja(self.intUnidadMedidaID)
         ).grid(row=2, column=0, pady=2)
         
         # Configurar filas y columnas para expandirse
@@ -92,23 +92,23 @@ class DocumentoIdentidadView(ttk.Frame):
         selected = self.table.view.focus()
         values = self.table.view.item(selected, "values")
         if values:
-            self.intDocumentoIdentidadID = int(values[0])
+            self.intUnidadMedidaID = int(values[0])
 
-    def dar_de_baja(self, intDocumentoIdentidadID):
-        respuesta = messagebox.askyesno("Confirmación", "¿Está seguro que desea dar de baja al documento de identidad?")
+    def dar_de_baja(self, intUnidadMedidaID):
+        respuesta = messagebox.askyesno("Confirmación", "¿Está seguro que desea dar de baja a la unidad de medida?")
         if respuesta:
-            respuesta = DocumentoIdentidadService.dar_de_baja(intDocumentoIdentidadID) 
+            respuesta = UnidadMedidaService.dar_de_baja(intUnidadMedidaID) 
             if respuesta.bitError:
                 messagebox.showwarning("Validación!", respuesta.strMensaje)
             else:
                 self.on_register_success()    
 
-    def abrir_registro_documento_identidad(self, intDocumentoIdentidadID):
+    def abrir_registro_unidad_medida(self, intUnidadMedidaID):
 
         # Crear el diálogo
         self.dialog = ttk.Toplevel(self)
         self.dialog.usuario_sesion = self.usuario_sesion
-        self.dialog.title("Editar Documento de Identidad" if intDocumentoIdentidadID > 0 else "Nuevo Documento de Identidad")
+        self.dialog.title("Editar Unidad de Medida" if intUnidadMedidaID > 0 else "Nueva Unidad de Medida")
         self.dialog.transient(self.winfo_toplevel())  # asociar con ventana principal
         self.dialog.grab_set()  # hace que sea modal
 
@@ -123,24 +123,25 @@ class DocumentoIdentidadView(ttk.Frame):
         x = (screen_width // 2) - (ancho // 2)
         y = (screen_height // 2) - (alto // 2)
 
-        self.dialog.geometry(f"{ancho}x{alto}+{x}+{y}")
+        self.dialog.geometry(f"{ancho}x{alto+100}+{x}+{y}")
         self.dialog.resizable(False, False)  # evita redimensionamiento
 
         # Cargar la vista de registro dentro del diálogo
-        DocumentoIdentidadRegistroView(self.dialog, intDocumentoIdentidadID, self.on_register_success).pack(fill="both", expand=True)
+        UnidadMedidaRegistroView(self.dialog, intUnidadMedidaID, self.on_register_success).pack(fill="both", expand=True)
     def obtener_columnas(self):
         return [
             {"text": "ID", "stretch": False},
             {"text": "Nombre"},
+            {"text": "Abreviatura"},
             {"text": "Estado", "anchor": "center"},
         ]
     def on_register_success(self):
-        self.roles = DocumentoIdentidadService.listar()
+        self.unidades = UnidadMedidaService.listar()
         
         if hasattr(self, 'table'):
             nueva_data = [
-                [r.intDocumentoIdentidadID, r.strNombre, r.strEstado]
-                for r in self.roles
+                [r.intUnidadMedidaID, r.strNombre, r.strAbreviatura, r.strEstado]
+                for r in self.unidades
             ]
             self.table.build_table_data(self.cols, nueva_data)
             self.table.load_table_data(True)

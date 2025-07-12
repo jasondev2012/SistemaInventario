@@ -2,6 +2,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import StringVar, filedialog, messagebox
 from PIL import Image, ImageTk
+from controllers.catalogo.documento_identidad_service import DocumentoIdentidadService
 from controllers.seguridad.usuario_service import UsuarioService
 from controllers.seguridad.rol_service import RolService
 
@@ -26,12 +27,10 @@ class UsuarioRegistroView(ttk.Frame):
 
         # Diccionarios de opciones
         roles = RolService.listar_combo()
+        documentosIdentidad = DocumentoIdentidadService.listar_combo()
         self.rol_opciones = {rol.strNombre: rol.intRolID for rol in roles}
-        self.tipo_documento_opciones = {
-            "DNI": 1,
-            "Carnet de Extranjería": 2,
-            "Pasaporte": 3
-        }
+        self.tipo_documento_opciones = {doc.strNombre: doc.intDocumentoIdentidadID for doc in documentosIdentidad}
+
         usuario = None
         if intUsuarioID > 0:
             usuario = UsuarioService.obtener(intUsuarioID)

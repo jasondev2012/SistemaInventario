@@ -2,6 +2,8 @@ import os
 import json
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from views.catalogo.tipo_movimiento_view import TipoMovimientoView
+from views.catalogo.unidad_medida_view import UnidadMedidaView
 from views.auth.login_view import LoginView
 from views.seguridad.usuario.usuario_view import UsuarioView
 from views.catalogo.documento_identidad_view import DocumentoIdentidadView
@@ -48,11 +50,24 @@ def iniciar_app():
             widget.destroy()
         app.content_frame.usuario_sesion = app.usuario_sesion
         RolView(app.content_frame)
+
     def mostrar_manteniemiento_documento_identidad():
         for widget in app.content_frame.winfo_children():
             widget.destroy()
         app.content_frame.usuario_sesion = app.usuario_sesion
         DocumentoIdentidadView(app.content_frame)
+
+    def mostrar_manteniemiento_unidad_medida():
+        for widget in app.content_frame.winfo_children():
+            widget.destroy()
+        app.content_frame.usuario_sesion = app.usuario_sesion
+        UnidadMedidaView(app.content_frame)
+
+    def mostrar_manteniemiento_tipo_movimiento():
+        for widget in app.content_frame.winfo_children():
+            widget.destroy()
+        app.content_frame.usuario_sesion = app.usuario_sesion
+        TipoMovimientoView(app.content_frame)
 
     def mostrar_movimientos():
         for widget in app.content_frame.winfo_children():
@@ -122,9 +137,9 @@ def iniciar_app():
         # Catálogos
         catalogos_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Catálogos", image=app.icon_catalogo, compound="left", bootstyle="secondary")
         catalogos_menu = ttk.Menu(catalogos_menu_btn, tearoff=0, font=fuente_grande)
-        catalogos_menu.add_command(label="Unidades de Medida")
+        catalogos_menu.add_command(label="Unidades de Medida", command=mostrar_manteniemiento_unidad_medida)
         catalogos_menu.add_command(label="Documentos Identidad", command=mostrar_manteniemiento_documento_identidad)
-        catalogos_menu.add_command(label="Tipos de Movimientos")
+        catalogos_menu.add_command(label="Tipos de Movimientos", command=mostrar_manteniemiento_tipo_movimiento)
         catalogos_menu_btn["menu"] = catalogos_menu
         catalogos_menu_btn.pack(side="left", padx=0)
 

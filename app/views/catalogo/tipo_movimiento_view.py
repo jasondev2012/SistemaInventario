@@ -2,10 +2,10 @@ import ttkbootstrap as ttk
 from ttkbootstrap.tableview import Tableview
 from tkinter import messagebox
 from ttkbootstrap.constants import *
-from views.catalogo.documento_identidad_registro_view import DocumentoIdentidadRegistroView
-from controllers.catalogo.documento_identidad_service import DocumentoIdentidadService
+from controllers.catalogo.tipo_movimiento_service import TipoMovimientoService
+from views.catalogo.tipo_movimiento_registro_view import TipoMovimientoRegistroView
 
-class DocumentoIdentidadView(ttk.Frame):
+class TipoMovimientoView(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.usuario_sesion = master.usuario_sesion
@@ -22,14 +22,14 @@ class DocumentoIdentidadView(ttk.Frame):
 
         ttk.Label(
             top_frame,
-            text='Mantenimiento de Documentos de Identidad',
+            text='Mantenimiento de Tipos de Movimiento',
             font=("Helvetica", 16)
         ).pack(pady=20)
 
         # Define columnas
 
         # Datos de ejemplo
-        self.roles = DocumentoIdentidadService.listar()
+        self.unidades = TipoMovimientoService.listar()
 
         # LEFT FRAME
         left_frame = ttk.Frame(self, style="Custom1.TFrame")
@@ -41,8 +41,8 @@ class DocumentoIdentidadView(ttk.Frame):
             left_frame,
             coldata=self.cols,
             rowdata=[
-                [r.intDocumentoIdentidadID, r.strNombre, r.strEstado]
-                for r in self.roles
+                [r.intTipoMovimientoID, r.strNombre, r.strEstado]
+                for r in self.unidades
             ],
             paginated=True,
             searchable=True,
@@ -65,21 +65,21 @@ class DocumentoIdentidadView(ttk.Frame):
             text="Nuevo",
             bootstyle="success",
             width=20,
-            command=lambda: self.abrir_registro_documento_identidad(0)
+            command=lambda: self.abrir_registro_tipo_movimiento(0)
         ).grid(row=0, column=0, pady=2)
         ttk.Button(
             right_frame,
             text="Editar",
             bootstyle="info",
             width=20,
-            command=lambda: self.abrir_registro_documento_identidad(self.intDocumentoIdentidadID)
+            command=lambda: self.abrir_registro_tipo_movimiento(self.intTipoMovimientoID)
         ).grid(row=1, column=0, pady=2)
         ttk.Button(
             right_frame,
             text="Eliminar",
             bootstyle="danger",
             width=20,
-            command=lambda: self.dar_de_baja(self.intDocumentoIdentidadID)
+            command=lambda: self.dar_de_baja(self.intTipoMovimientoID)
         ).grid(row=2, column=0, pady=2)
         
         # Configurar filas y columnas para expandirse
@@ -92,23 +92,23 @@ class DocumentoIdentidadView(ttk.Frame):
         selected = self.table.view.focus()
         values = self.table.view.item(selected, "values")
         if values:
-            self.intDocumentoIdentidadID = int(values[0])
+            self.intTipoMovimientoID = int(values[0])
 
-    def dar_de_baja(self, intDocumentoIdentidadID):
-        respuesta = messagebox.askyesno("Confirmación", "¿Está seguro que desea dar de baja al documento de identidad?")
+    def dar_de_baja(self, intTipoMovimientoID):
+        respuesta = messagebox.askyesno("Confirmación", "¿Está seguro que desea dar de baja al tipo de movimiento?")
         if respuesta:
-            respuesta = DocumentoIdentidadService.dar_de_baja(intDocumentoIdentidadID) 
+            respuesta = TipoMovimientoService.dar_de_baja(intTipoMovimientoID) 
             if respuesta.bitError:
                 messagebox.showwarning("Validación!", respuesta.strMensaje)
             else:
                 self.on_register_success()    
 
-    def abrir_registro_documento_identidad(self, intDocumentoIdentidadID):
+    def abrir_registro_tipo_movimiento(self, intTipoMovimientoID):
 
         # Crear el diálogo
         self.dialog = ttk.Toplevel(self)
         self.dialog.usuario_sesion = self.usuario_sesion
-        self.dialog.title("Editar Documento de Identidad" if intDocumentoIdentidadID > 0 else "Nuevo Documento de Identidad")
+        self.dialog.title("Editar Tipo de Movimiento" if intTipoMovimientoID > 0 else "Nueva Tipo de Movimiento")
         self.dialog.transient(self.winfo_toplevel())  # asociar con ventana principal
         self.dialog.grab_set()  # hace que sea modal
 
@@ -127,7 +127,7 @@ class DocumentoIdentidadView(ttk.Frame):
         self.dialog.resizable(False, False)  # evita redimensionamiento
 
         # Cargar la vista de registro dentro del diálogo
-        DocumentoIdentidadRegistroView(self.dialog, intDocumentoIdentidadID, self.on_register_success).pack(fill="both", expand=True)
+        TipoMovimientoRegistroView(self.dialog, intTipoMovimientoID, self.on_register_success).pack(fill="both", expand=True)
     def obtener_columnas(self):
         return [
             {"text": "ID", "stretch": False},
@@ -135,12 +135,12 @@ class DocumentoIdentidadView(ttk.Frame):
             {"text": "Estado", "anchor": "center"},
         ]
     def on_register_success(self):
-        self.roles = DocumentoIdentidadService.listar()
+        self.unidades = TipoMovimientoService.listar()
         
         if hasattr(self, 'table'):
             nueva_data = [
-                [r.intDocumentoIdentidadID, r.strNombre, r.strEstado]
-                for r in self.roles
+                [r.intTipoMovimientoID, r.strNombre, r.strEstado]
+                for r in self.unidades
             ]
             self.table.build_table_data(self.cols, nueva_data)
             self.table.load_table_data(True)
