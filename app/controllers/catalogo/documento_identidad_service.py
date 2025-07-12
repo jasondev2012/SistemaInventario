@@ -1,9 +1,7 @@
-from app.models.catalogo.documento_identidad_lista_combo_model import DocumentoIdentidadListaComboModel
-from app.models.catalogo.documento_identidad_lista_model import DocumentoIdentidadListaModel
-from app.models.catalogo.documento_identidad_registro_model import DocumentoIdentidadRegistroModel
+from models.catalogo.documento_identidad_lista_combo_model import DocumentoIdentidadListaComboModel
+from models.catalogo.documento_identidad_lista_model import DocumentoIdentidadListaModel
+from models.catalogo.documento_identidad_registro_model import DocumentoIdentidadRegistroModel
 from db import DataBase
-from models.seguridad.rol_lista_model import RolListaModel
-from models.seguridad.rol_registro_model import RolRegistroModel
 from models.reponse_model import ResponseModel
 
 class DocumentoIdentidadService:

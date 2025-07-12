@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.tableview import Tableview
 from tkinter import messagebox
 from ttkbootstrap.constants import *
-from app.controllers.catalogo.documento_identidad_service import DocumentoIdentidadService
+from controllers.catalogo.documento_identidad_service import DocumentoIdentidadService
 from views.seguridad.rol.rol_registro_view import RolRegistroView
 
 class DocumentoIdentidadView(ttk.Frame):
