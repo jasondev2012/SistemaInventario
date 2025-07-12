@@ -4,6 +4,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from views.auth.login_view import LoginView
 from views.seguridad.usuario.usuario_view import UsuarioView
+from views.catalogo.documento_identidad_view import DocumentoIdentidadView
 from views.seguridad.rol.rol_view import RolView
 from views.movimientos.movimiento_view import MovimientoView
 from PIL import Image, ImageTk
@@ -47,6 +48,11 @@ def iniciar_app():
             widget.destroy()
         app.content_frame.usuario_sesion = app.usuario_sesion
         RolView(app.content_frame)
+    def mostrar_manteniemiento_documento_identidad():
+        for widget in app.content_frame.winfo_children():
+            widget.destroy()
+        app.content_frame.usuario_sesion = app.usuario_sesion
+        DocumentoIdentidadView(app.content_frame)
 
     def mostrar_movimientos():
         for widget in app.content_frame.winfo_children():
@@ -117,7 +123,7 @@ def iniciar_app():
         catalogos_menu_btn = ttk.Menubutton(menubar_frame, cursor="hand2", text="Catálogos", image=app.icon_catalogo, compound="left", bootstyle="secondary")
         catalogos_menu = ttk.Menu(catalogos_menu_btn, tearoff=0, font=fuente_grande)
         catalogos_menu.add_command(label="Unidades de Medida")
-        catalogos_menu.add_command(label="Documentos Identidad")
+        catalogos_menu.add_command(label="Documentos Identidad", command=mostrar_manteniemiento_documento_identidad)
         catalogos_menu.add_command(label="Tipos de Movimientos")
         catalogos_menu_btn["menu"] = catalogos_menu
         catalogos_menu_btn.pack(side="left", padx=0)
